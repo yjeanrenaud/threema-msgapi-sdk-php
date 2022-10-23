@@ -1,0 +1,34 @@
+{
+    "name": "threema\/msgapi-sdk",
+    "description": "API for the msgapi service",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Silvan Engeler",
+            "email": "silvan.engeler@threema.ch"
+        }
+    ],
+    "require": {
+        "ext-sodium": "*",
+        "ext-json": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Threema\\MsgApi\\": "src\/MsgApi"
+        },
+        "files": [
+            "src\/Salt\/Curve25519\/Curve25519.php",
+            "src\/Salt\/FieldElement.php",
+            "src\/Salt\/Salt.php",
+            "src\/Salt\/SaltException.php",
+            "src\/Salt\/Poly1305\/Poly1305.php",
+            "src\/Salt\/Salsa20\/Salsa20.php"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Threema\\Console\\": "src\/Console",
+            "Threema\\MsgApi\\": "src\/MsgApi"
+        }
+    }
+}

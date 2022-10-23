@@ -1,15 +1,5 @@
-**Dear visitor**  
-**This repository is no longer maintained.**  
-**To download the latest version of the Threema Getway SDK please go to:**  
-https://gateway.threema.ch/en/developer/sdk-php
-
-**A fork of this repository is maintained here: https://github.com/rugk/threema-msgapi-sdk-php**
-
-____
-
-
 # msgapi-sdk-php
-Version: 1.1.2
+Version: 1.5.6
 
 ## Installation
 - Install PHP 5.4 or later: [https://secure.php.net/manual/en/install.php](https://secure.php.net/manual/en/install.php)
@@ -31,7 +21,16 @@ Version: 1.1.2
   extension=libsodium.so
   ```
 
-If you want to check whether your server meets the requirements and everything is configured properly you can execute `threema-msgapi-tool.php` without any parameters on the console or point your browser to the location where it is saved on your server.
+If you want to check whether your server meets the requirements and everything is configured properly, you can execute `threema-msgapi-tool.php` without any parameters on the console or point your browser to the location where it is saved on your server.
+
+## Build a PHAR file
+Execute the build process:
+
+```shell
+php ./bin/build.php
+```
+
+A ZIP file including the whole source and the PHAR file will be created in the `release` folder
 
 ## SDK usage
 ### Creating a connection
@@ -57,7 +56,7 @@ $connector = new Connection($settings, $publicKeyStore);
 ```
 
 ### Creating a connection with advanced options
-**Attention:** This settings change internal values of the TLS connection. Choosing wrong settings can weaken the TLS connection or prevent connecting to the server. Use this options with care!
+**Attention:** These settings change internal values of the TLS connection. Choosing wrong settings can weaken the TLS connection or prevent connecting to the server. Use these options with care!
 
 Each of the additional options shown below is optional. You can leave it out or use `null` to use the default value for this option.
 
@@ -71,7 +70,7 @@ require_once('lib/bootstrap.php');
 //define your connection settings
 $settings = new ConnectionSettings(
     '*THREEMA',
-    'THISISMYSECRET'
+    'THISISMYSECRET',
     null, //the host to be use, set to null for default (recommend)
     [
         'forceHttps' => true, //set to true to force HTTPS, default: false
@@ -87,7 +86,7 @@ $publicKeyStore = new Threema\MsgApi\PublicKeyStores\PhpFile('/path/to/my/keysto
 $connector = new Connection($settings, $publicKeyStore);
 ```
 
-If you want to get a list of all ciphers you can use have a look at the [SSLLabs scan](https://www.ssllabs.com/ssltest/analyze.html?d=msgapi.threema.ch) and at the list of all available [OpenSSL ciphers](https://www.openssl.org/docs/manmaster/apps/ciphers.html).
+If you want to get a list of all ciphers, you can use have a look at the [SSLLabs scan](https://www.ssllabs.com/ssltest/analyze.html?d=msgapi.threema.ch) and at the list of all available [OpenSSL ciphers](https://www.openssl.org/docs/manmaster/apps/ciphers.html).
 
 ### Sending a text message to a Threema ID (Simple Mode)
 
@@ -112,6 +111,9 @@ else {
 //create the connection
 //(...)
 
+// Specify your own private key in hex below (without the "private:" prefix)
+$senderPrivateKey = hex2bin("0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef");
+
 $e2eHelper = new \Threema\MsgApi\Helpers\E2EHelper($senderPrivateKey,$connector);
 $result = $e2eHelper->sendTextMessage("TEST1234", "This is an end-to-end encrypted message");
 
@@ -129,7 +131,8 @@ else {
 //create the connection
 //(...)
 
-$senderPrivateKey = "MY_PUBLIC_KEY_IN_BIN";
+// Specify your own private key in hex below (without the "private:" prefix)
+$senderPrivateKey = hex2bin("0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef");
 $filePath = "/path/to/my/file.pdf";
 
 $e2eHelper = new \Threema\MsgApi\Helpers\E2EHelper($senderPrivateKey,$connector);
@@ -226,6 +229,15 @@ threema-msgapi-tool.php -S -f <threemaId> <from> <secret> <privateKey> <file> <t
 
 Encrypt the file (and thumbnail if given) and send the message to the given ID. 'from' is the API identity and 'secret' is the API secret. Prints the message ID on success.
 
+#### Send a End-to-End Encrypted Video Message
+
+```shell
+msgapi.php -S -v <threemaId> <from> <secret> <privateKey> <duration> <videoFile> <thumbnailFile>
+```
+
+Encrypt the video and thumbnail file and send the message to the given ID. 'from' is the API
+identity and 'secret' is the API secret. Prints the message ID on success.
+
 #### ID-Lookup By Email Address
 
 ```shell
@@ -241,6 +253,13 @@ threema-msgapi-tool.php -l -p <phoneNo> <from> <secret>
 ```
 
 Lookup the ID linked to the given phone number (will be hashed locally).
+
+#### Bulk ID-Lookup By Email Addresses And Phone Numbers
+
+```shell
+threema-msgapi-tool.php -l -B <from> <secret> <emailAddresses> <phoneNumbers>
+```
+Lookup IDs linked to the given email and phone address (will be hashed locally).
 
 #### Fetch Public Key
 

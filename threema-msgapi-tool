@@ -1,0 +1,38 @@
+#!/usr/bin/php
+<?php
+
+/**
+ * @author Silvan Engeler <silvan.engeler@threema.ch>
+ * @copyright Copyright (c) 2020 Threema GmbH
+ * @link https://gateway.threema.ch/en/developer
+ */
+
+//disallow using the cli tool in a web project
+if ('cli' !== php_sapi_name() || null === $argv) {
+	//file not called from the cli
+	die('please run ' . basename(__FILE__) . ' only in a cli. '.
+		'To use the threema msgapi sdk in your web project, include the src/bootstrap.php or the threema_msgapi.phar file.');
+}
+try {
+	require_once 'vendor/autoload.php';
+
+	$sdkVersion = '';
+	define('MSGAPI_SDK_VERSION', $sdkVersion);
+	$cryptTool = Threema\MsgApi\Tools\CryptTool::getInstance();
+
+	if(null === $cryptTool) {
+		throw new \Threema\MsgApi\Core\Exception("no supported crypt-tool");
+	}
+
+
+	$cryptTool->validate();
+
+	$tool = new \Threema\Console\Run(
+		$argv,
+		//create a phpfile public keystore
+		\Threema\MsgApi\PublicKeyStores\PhpFile::create('keystore.php'));
+	$tool->run();
+} catch (\Threema\MsgApi\Core\Exception $exception) {
+	echo "ERROR: " . $exception->getMessage() . "\n";
+	die();
+}
